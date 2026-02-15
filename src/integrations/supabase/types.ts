@@ -14,7 +14,225 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      courses: {
+        Row: {
+          created_at: string
+          creator_id: string
+          currency: string | null
+          description: string | null
+          drm_enabled: boolean | null
+          id: string
+          price: number | null
+          status: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          watermark_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          currency?: string | null
+          description?: string | null
+          drm_enabled?: boolean | null
+          id?: string
+          price?: number | null
+          status?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          watermark_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          currency?: string | null
+          description?: string | null
+          drm_enabled?: boolean | null
+          id?: string
+          price?: number | null
+          status?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          watermark_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          module_id: string
+          sort_order: number | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          module_id: string
+          sort_order?: number | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          module_id?: string
+          sort_order?: number | null
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playback_logs: {
+        Row: {
+          anomaly_flag: boolean | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          lesson_id: string | null
+          user_id: string
+          watermark_id: string | null
+        }
+        Insert: {
+          anomaly_flag?: boolean | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          lesson_id?: string | null
+          user_id: string
+          watermark_id?: string | null
+        }
+        Update: {
+          anomaly_flag?: boolean | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          lesson_id?: string | null
+          user_id?: string
+          watermark_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playback_logs_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          device_hash: string | null
+          full_name: string | null
+          id: string
+          last_ip: string | null
+          phone: string | null
+          risk_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_hash?: string | null
+          full_name?: string | null
+          id?: string
+          last_ip?: string | null
+          phone?: string | null
+          risk_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_hash?: string | null
+          full_name?: string | null
+          id?: string
+          last_ip?: string | null
+          phone?: string | null
+          risk_score?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          device_hash: string
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          last_seen_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_hash: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_seen_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_hash?: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_seen_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
