@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import VideoPlayer from "./pages/VideoPlayer";
 import CreateCourse from "./pages/CreateCourse";
+import Courses from "./pages/Courses";
+import CourseDetail from "./pages/CourseDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,8 +32,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/course/:courseId" element={<CourseDetail />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/player" element={<ProtectedRoute><VideoPlayer /></ProtectedRoute>} />
+            <Route path="/player/:courseId" element={<ProtectedRoute><VideoPlayer /></ProtectedRoute>} />
             <Route path="/create-course" element={<ProtectedRoute><CreateCourse /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

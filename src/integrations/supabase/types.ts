@@ -59,6 +59,50 @@ export type Database = {
         }
         Relationships: []
       }
+      enrollments: {
+        Row: {
+          amount_paid: number | null
+          course_id: string
+          currency: string | null
+          enrolled_at: string
+          id: string
+          payment_id: string | null
+          payment_provider: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          course_id: string
+          currency?: string | null
+          enrolled_at?: string
+          id?: string
+          payment_id?: string | null
+          payment_provider?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number | null
+          course_id?: string
+          currency?: string | null
+          enrolled_at?: string
+          id?: string
+          payment_id?: string | null
+          payment_provider?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           created_at: string

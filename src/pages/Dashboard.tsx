@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeAlerts } from "@/hooks/useRealtimeAlerts";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("courses");
@@ -26,16 +27,27 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  const alerts = useRealtimeAlerts(user?.id);
+
+  const { data: enrollmentCount = 0 } = useQuery({
+    queryKey: ['enrollment-count', user?.id],
+    queryFn: async () => {
+      // Count enrollments for creator's courses
+      const courseIds = courses.map((c: any) => c.id);
+      if (courseIds.length === 0) return 0;
+      const { count } = await supabase
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .in('course_id', courseIds);
+      return count || 0;
+    },
+    enabled: !!user && courses.length > 0,
+  });
+
   const handleLogout = async () => {
     await signOut();
     navigate('/login');
   };
-
-  const mockAlerts = [
-    { type: "warning", msg: "Suspicious login attempt from new IP — user@gmail.com", time: "2 min ago" },
-    { type: "error", msg: "Screen recording detected — student45@mail.com", time: "15 min ago" },
-    { type: "info", msg: "New device registered — pro_learner@outlook.com", time: "1 hr ago" },
-  ];
 
   const sidebarItems = [
     { id: "courses", icon: BookOpen, label: "Courses" },
@@ -112,7 +124,7 @@ const Dashboard = () => {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {[
-            { label: "Total Students", value: "835", icon: Users, change: "+12%" },
+            { label: "Total Students", value: String(enrollmentCount), icon: Users, change: "enrolled" },
             { label: "Active Courses", value: String(courses.length || 3), icon: BookOpen, change: `${courses.length}` },
             { label: "Security Score", value: "98%", icon: Shield, change: "Excellent" },
             { label: "Revenue", value: "₹2.08L", icon: BarChart3, change: "+24%" },
@@ -185,7 +197,7 @@ const Dashboard = () => {
             <span className="text-xs font-mono text-accent">Live</span>
           </div>
           <div className="space-y-2 sm:space-y-3">
-            {mockAlerts.map((alert, i) => (
+            {alerts.map((alert, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -10 }}

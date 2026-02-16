@@ -15,6 +15,8 @@ import { toast } from "sonner";
 interface LessonDraft {
   title: string;
   videoFile?: File;
+  uploading?: boolean;
+  videoUrl?: string;
 }
 
 interface ModuleDraft {
@@ -118,15 +120,28 @@ const CreateCourse = () => {
 
         if (modError) throw modError;
 
-        // Create lessons for this module
-        const lessonInserts = mod.lessons.map((lesson, li) => ({
-          module_id: moduleData.id,
-          title: lesson.title,
-          sort_order: li,
-        }));
+        // Create lessons and upload videos
+        for (let li = 0; li < mod.lessons.length; li++) {
+          const lesson = mod.lessons[li];
+          let videoUrl: string | null = null;
 
-        const { error: lessonError } = await supabase.from('lessons').insert(lessonInserts);
-        if (lessonError) throw lessonError;
+          if (lesson.videoFile) {
+            const filePath = `${user.id}/${course.id}/${moduleData.id}/${Date.now()}_${lesson.videoFile.name}`;
+            const { error: uploadError } = await supabase.storage
+              .from('course-videos')
+              .upload(filePath, lesson.videoFile);
+            if (uploadError) throw uploadError;
+            videoUrl = filePath;
+          }
+
+          const { error: lessonError } = await supabase.from('lessons').insert({
+            module_id: moduleData.id,
+            title: lesson.title,
+            sort_order: li,
+            video_url: videoUrl,
+          });
+          if (lessonError) throw lessonError;
+        }
       }
 
       toast.success("Course created successfully!");
@@ -273,17 +288,44 @@ const CreateCourse = () => {
 
                 <div className="space-y-2 ml-0 sm:ml-7">
                   {mod.lessons.map((lesson, li) => (
-                    <div key={li} className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-muted-foreground w-6 flex-shrink-0">{mi + 1}.{li + 1}</span>
-                      <Input
-                        value={lesson.title}
-                        onChange={(e) => updateLessonTitle(mi, li, e.target.value)}
-                        className="bg-secondary/50 border-border/50 text-sm"
-                        placeholder="Lesson title"
-                      />
-                      <Button type="button" variant="ghost" size="sm" onClick={() => removeLesson(mi, li)} className="text-muted-foreground hover:text-destructive flex-shrink-0 px-2">
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                    <div key={li} className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono text-muted-foreground w-6 flex-shrink-0">{mi + 1}.{li + 1}</span>
+                        <Input
+                          value={lesson.title}
+                          onChange={(e) => updateLessonTitle(mi, li, e.target.value)}
+                          className="bg-secondary/50 border-border/50 text-sm"
+                          placeholder="Lesson title"
+                        />
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeLesson(mi, li)} className="text-muted-foreground hover:text-destructive flex-shrink-0 px-2">
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      {/* Video upload */}
+                      <div className="ml-8 flex items-center gap-2">
+                        <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer hover:text-primary transition-colors px-2 py-1.5 rounded-md bg-secondary/30 border border-border/30">
+                          <Upload className="w-3 h-3" />
+                          {lesson.videoFile ? lesson.videoFile.name : "Upload video"}
+                          <input
+                            type="file"
+                            accept="video/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const updated = [...modules];
+                                updated[mi].lessons[li].videoFile = file;
+                                setModules(updated);
+                              }
+                            }}
+                          />
+                        </label>
+                        {lesson.videoFile && (
+                          <span className="text-[10px] text-success font-mono">
+                            {(lesson.videoFile.size / (1024 * 1024)).toFixed(1)}MB
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                   <Button
