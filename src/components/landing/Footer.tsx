@@ -1,4 +1,4 @@
-import { Shield } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
+            <img src={logo} alt="VaultLearn" className="w-5 h-5" />
             <span className="font-bold">Vault<span className="text-primary">Learn</span></span>
           </div>
           <p className="text-sm text-muted-foreground">
